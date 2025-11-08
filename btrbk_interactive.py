@@ -9,7 +9,12 @@ SNAPSHOT_REGEX = "^@([a-zA-Z-]*).([0-9]{4})([0-9]{2})([0-9]{2})T([0-9]{2})([0-9]
 
 
 class Snapshot():
+    total=0
+
     def __init__(self, snapshot_name):
+        self.index = Snapshot.total
+        Snapshot.total += 1
+
         self.data = re.search(SNAPSHOT_REGEX, snapshot_name).groups()
 
         self.subvol, self.year, self.month, self.day, self.hr, self.min = \
@@ -47,7 +52,7 @@ class ManageSnapshots():
         self.snapshots = snapshots
         self.snapshots_by_subvol = groupby(snapshots, key=lambda s: s.subvol)
 
-    def list(self, filter_subvol=""):
+    def list_all(self, filter_subvol=""):
         for subvol, snapshots in self.snapshots_by_subvol:
             if filter_subvol != "" and filter_subvol != subvol:
                 continue
@@ -57,7 +62,7 @@ class ManageSnapshots():
                 print(f"\n{date}")
 
                 for s in snapshots_by_date:
-                    print(f"- {s.hr}:{s.min}")
+                    print(f"{"{:03d}".format(s.index)} - {s.hr}:{s.min}")
 
 
 init()
@@ -66,4 +71,4 @@ snapshots = get_snapshot_arr()
 
 manage = ManageSnapshots(snapshots)
 
-manage.list()
+manage.list_all()
