@@ -47,8 +47,10 @@ class ManageSnapshots():
         self.snapshots = snapshots
         self.snapshots_by_subvol = groupby(snapshots, key=lambda s: s.subvol)
 
-    def list(self):
+    def list(self, filter_subvol=""):
         for subvol, snapshots in self.snapshots_by_subvol:
+            if filter_subvol != "" and filter_subvol != subvol:
+                continue
             print(f"----\nSubvolume: @{subvol}\n----")
 
             for date, snapshots_by_date in groupby(snapshots, key=lambda s: f"{s.day} {s.month_name[:3]} {s.year}"):
