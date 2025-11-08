@@ -1,6 +1,7 @@
 import os
 import sys
 import re
+import calendar
 
 snapshots_dir=sys.argv[1]
 SNAPSHOT_REGEX="^@([a-zA-Z-]*).([0-9]{4})([0-9]{2})([0-9]{2})T([0-9]{2})([0-9]{2})$"
@@ -15,6 +16,9 @@ class Snapshot():
         self.snapshot_name = snapshot_name
         self.path = f"{snapshots_dir}/{snapshot_name}"
 
+    def __str__(self):
+        return f"@{self.subvol} {self.day} {calendar.month_name[int(self.month)][:3]}"
+
 def init():
     if not os.path.isdir(snapshots_dir):
         sys.exit(f'Directory "{snapshots_dir}" doesnt exist.')
@@ -22,10 +26,28 @@ def init():
 def get_snapshot_arr():
     return [Snapshot(snapshot) for snapshot in os.listdir(snapshots_dir)]
 
+class ManageSnapshots():
+    def __init__(self, snapshots):
+        self.snapshots = sorted(snapshots,\
+                                key=lambda s: (s.subvol,
+                                               s.year,
+                                               s.month,
+                                               s.day,
+                                               s.hr,
+                                               s.min)
+                                )
+        self.parent_dir = ""
+        self.subvol = ""
+
+    def list(self):
+        for s in self.snapshots:
+            print(s)
+
 
 init()
 
 snapshots = get_snapshot_arr()
 
-for snapshot in snapshots:
-    print(snapshot.data)
+manage = ManageSnapshots(snapshots)
+
+manage.list()
